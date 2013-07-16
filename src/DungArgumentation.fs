@@ -189,10 +189,15 @@ let unattacked outs af arg =
   let attackers = [for (a, b) in def do if arg = b then yield a]
   List.``null`` (List.cut attackers outs)
 
+let [<Test>] ``unattacked ignore outs`` () =
+  unattacked ["feeling_of_accomplishment"] shouldLearn "is_hard" |> Assert.IsTrue
+
+let [<Test>] ``unattacked is false when outs empty and arg is attacked`` () =
+  unattacked [] shouldLearn "is_hard" |> Assert.IsFalse
+
 /// Given a list of arguments that are 'In' in an argumentation framework af,
 /// an argument 'arg' is attacked if there exists an attacker that is 'In'.
-//attacked :: Eq arg => [arg] ->
-//            DungAF arg -> arg -> Bool
+/// attacked :: Eq arg => [arg] -> DungAF arg -> arg -> Bool
 let attacked ins af arg =
   let (AF (_, def)) = af
   let attackers =
@@ -200,6 +205,9 @@ let attacked ins af arg =
         |> List.map fst // the first item in the tuples are the attackers
         |> Set.ofList
   not <| Set.isEmpty (attackers |> Set.intersect (Set.ofList ins))
+
+let [<Test>] ``attacked if there exists an attacker in 'ins'`` () =
+  attacked ["is_hard"] shouldLearn "is_fun" |> Assert.IsTrue
 
 /// Labelling of arguments.
 type Status = In | Out | Undecided
